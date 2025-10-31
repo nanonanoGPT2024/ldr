@@ -1,7 +1,7 @@
 package com.ldr.api.controller;
 
 import com.ldr.api.dto.DropdownDto;
-import com.ldr.api.service.*;
+import com.ldr.api.repository.*;
 import com.ldr.api.util.EntityMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,32 +22,32 @@ import java.util.stream.Collectors;
 @SecurityRequirement(name = "bearerAuth")
 public class DropdownController {
 
-    private final OrderStatusService orderStatusService;
-    private final PriorityService priorityService;
-    private final CooperationTypeService cooperationTypeService;
-    private final DocumentTypeService documentTypeService;
-    private final EmploymentStatusService employmentStatusService;
-    private final ServiceCostTypeService serviceCostTypeService;
-    private final DocumentSourceService documentSourceService;
+    private final OrderStatusRepository orderStatusRepository;
+    private final PriorityRepository priorityRepository;
+    private final CooperationTypeRepository cooperationTypeRepository;
+    private final DocumentTypeRepository documentTypeRepository;
+    private final EmploymentStatusRepository employmentStatusRepository;
+    private final ServiceCostTypeRepository serviceCostTypeRepository;
+    private final DocumentSourceRepository documentSourceRepository;
     private final EntityMapper entityMapper;
 
     @Autowired
     public DropdownController(
-            OrderStatusService orderStatusService,
-            PriorityService priorityService,
-            CooperationTypeService cooperationTypeService,
-            DocumentTypeService documentTypeService,
-            EmploymentStatusService employmentStatusService,
-            ServiceCostTypeService serviceCostTypeService,
-            DocumentSourceService documentSourceService,
+            OrderStatusRepository orderStatusRepository,
+            PriorityRepository priorityRepository,
+            CooperationTypeRepository cooperationTypeRepository,
+            DocumentTypeRepository documentTypeRepository,
+            EmploymentStatusRepository employmentStatusRepository,
+            ServiceCostTypeRepository serviceCostTypeRepository,
+            DocumentSourceRepository documentSourceRepository,
             EntityMapper entityMapper) {
-        this.orderStatusService = orderStatusService;
-        this.priorityService = priorityService;
-        this.cooperationTypeService = cooperationTypeService;
-        this.documentTypeService = documentTypeService;
-        this.employmentStatusService = employmentStatusService;
-        this.serviceCostTypeService = serviceCostTypeService;
-        this.documentSourceService = documentSourceService;
+        this.orderStatusRepository = orderStatusRepository;
+        this.priorityRepository = priorityRepository;
+        this.cooperationTypeRepository = cooperationTypeRepository;
+        this.documentTypeRepository = documentTypeRepository;
+        this.employmentStatusRepository = employmentStatusRepository;
+        this.serviceCostTypeRepository = serviceCostTypeRepository;
+        this.documentSourceRepository = documentSourceRepository;
         this.entityMapper = entityMapper;
     }
 
@@ -95,43 +95,43 @@ public class DropdownController {
     }
 
     private List<DropdownDto> getOrderStatusOptions() {
-        return orderStatusService.findByIsActive().stream()
+        return orderStatusRepository.findByIsActive(true).stream()
                 .map(status -> new DropdownDto(status.getId(), status.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getPriorityOptions() {
-        return priorityService.findByIsActive().stream()
+        return priorityRepository.findByIsActive(true).stream()
                 .map(priority -> new DropdownDto(priority.getId(), priority.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getCooperationTypeOptions() {
-        return cooperationTypeService.findByIsActive().stream()
+        return cooperationTypeRepository.findByIsActive(true).stream()
                 .map(type -> new DropdownDto(type.getId(), type.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getDocumentTypeOptions() {
-        return documentTypeService.findByIsActive().stream()
+        return documentTypeRepository.findByIsActive(true).stream()
                 .map(type -> new DropdownDto(type.getId(), type.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getEmploymentStatusOptions() {
-        return employmentStatusService.findByIsActive().stream()
+        return employmentStatusRepository.findByIsActive(true).stream()
                 .map(status -> new DropdownDto(status.getId(), status.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getServiceCostTypeOptions() {
-        return serviceCostTypeService.findByIsActive().stream()
+        return serviceCostTypeRepository.findByIsActive(true).stream()
                 .map(type -> new DropdownDto(type.getId(), type.getName()))
                 .collect(Collectors.toList());
     }
 
     private List<DropdownDto> getDocumentSourceOptions() {
-        return documentSourceService.findByIsActive().stream()
+        return documentSourceRepository.findByIsActive(true).stream()
                 .map(source -> new DropdownDto(source.getId(), source.getName()))
                 .collect(Collectors.toList());
     }
