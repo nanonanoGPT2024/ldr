@@ -367,15 +367,15 @@ public class OrderDataService {
         switch (actionStage.toLowerCase()) {
             case "next-stage":
                 nextStage = workflowDetail.getNextStage();
-                assignmentType = AssignmentType.ASSIGNED;
+                assignmentType = AssignmentType.NEXT;
                 break;
             case "return-stage":
                 nextStage = workflowDetail.getReturnStage();
-                assignmentType = AssignmentType.REASSIGNED;
+                assignmentType = AssignmentType.RETURN;
                 break;
             case "reject-stage":
                 nextStage = workflowDetail.getRejectStage();
-                assignmentType = AssignmentType.UNASSIGNED;
+                assignmentType = AssignmentType.REJECT;
                 break;
             default:
                 throw new ValidationException("Invalid action stage: " + actionStage);

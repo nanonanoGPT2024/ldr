@@ -123,6 +123,9 @@ public class OrderData {
     @Column(name = "current_role", length = 50)
     private String currentRole;
 
+    @Column(name = "sla")
+    private Integer sla;
+
     // Timeline Management
     @Column(name = "submission_date")
     private LocalDate submissionDate;
@@ -419,6 +422,14 @@ public class OrderData {
         this.currentRole = currentRole;
     }
 
+    public Integer getSla() {
+        return sla;
+    }
+
+    public void setSla(Integer sla) {
+        this.sla = sla;
+    }
+
     public LocalDate getSubmissionDate() {
         return submissionDate;
     }
@@ -533,6 +544,7 @@ public class OrderData {
                 ", priority=" + (priority != null ? priority.getName() : null) +
                 ", assignedTo=" + (assignedTo != null ? assignedTo.getUsername() : null) +
                 ", currentRole='" + currentRole + '\'' +
+                ", sla=" + sla +
                 ", submissionDate=" + submissionDate +
                 ", deadlineDate=" + deadlineDate +
                 ", completionDate=" + completionDate +

@@ -32,6 +32,12 @@ public class OrderAssignmentHistory {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "sla")
+    private Integer sla;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @CreatedDate
     @Column(name = "assigned_at", nullable = false, updatable = false)
     private LocalDateTime assignedAt;
@@ -99,6 +105,22 @@ public class OrderAssignmentHistory {
         this.notes = notes;
     }
 
+    public Integer getSla() {
+        return sla;
+    }
+
+    public void setSla(Integer sla) {
+        this.sla = sla;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
     public LocalDateTime getAssignedAt() {
         return assignedAt;
     }
@@ -116,6 +138,8 @@ public class OrderAssignmentHistory {
                 ", assignedByRole='" + assignedByRole + '\'' +
                 ", assignmentType=" + assignmentType +
                 ", notes='" + notes + '\'' +
+                ", sla=" + sla +
+                ", completedAt=" + completedAt +
                 ", assignedAt=" + assignedAt +
                 '}';
     }
