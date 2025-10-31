@@ -52,16 +52,14 @@ public class DropdownController {
     }
 
     @GetMapping("/{code}")
-    @Operation(summary = "Get dropdown options by reference table code",
-               description = "Retrieve dropdown options for the specified reference table code")
+    @Operation(summary = "Get dropdown options by reference table code", description = "Retrieve dropdown options for the specified reference table code")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved dropdown options"),
-        @ApiResponse(responseCode = "400", description = "Invalid reference table code"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved dropdown options"),
+            @ApiResponse(responseCode = "400", description = "Invalid reference table code"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<List<DropdownDto>> getDropdownOptions(
-            @Parameter(description = "Reference table code (order-status, priority, cooperation-type, document-type, employment-status, service-cost-type, document-source)")
-            @PathVariable String code) {
+            @Parameter(description = "Reference table code (order-status, priority, cooperation-type, document-type, employment-status, service-cost-type, document-source)") @PathVariable String code) {
 
         List<DropdownDto> options;
 
