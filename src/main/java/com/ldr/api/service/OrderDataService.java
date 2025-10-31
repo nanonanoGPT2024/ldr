@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ldr.api.dto.CreateOrderCommentRequest;
 import com.ldr.api.dto.OrderActionRequest;
 import com.ldr.api.dto.OrderActivityResponse;
 import com.ldr.api.exception.ResourceNotFoundException;
@@ -20,7 +19,6 @@ import com.ldr.api.model.AssignmentType;
 import com.ldr.api.model.OrderApproval;
 import com.ldr.api.model.OrderAssignmentHistory;
 import com.ldr.api.model.OrderAttachment;
-import com.ldr.api.model.OrderComment;
 import com.ldr.api.model.OrderData;
 import com.ldr.api.model.OrderStatus;
 import com.ldr.api.model.OrderStatusHistory;
@@ -30,7 +28,6 @@ import com.ldr.api.model.WorkflowDetail;
 import com.ldr.api.repository.OrderApprovalRepository;
 import com.ldr.api.repository.OrderAssignmentHistoryRepository;
 import com.ldr.api.repository.OrderAttachmentRepository;
-import com.ldr.api.repository.OrderCommentRepository;
 import com.ldr.api.repository.OrderDataRepository;
 import com.ldr.api.repository.OrderStatusHistoryRepository;
 import com.ldr.api.repository.OrderStatusRepository;
@@ -46,37 +43,31 @@ public class OrderDataService {
     private final WorkflowRepository workflowRepository;
     private final OrderApprovalRepository orderApprovalRepository;
     private final UserRepository userRepository;
-    private final OrderCommentRepository orderCommentRepository;
     private final OrderAttachmentRepository orderAttachmentRepository;
     private final OrderStatusRepository orderStatusRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final WorkflowDetailRepository workflowDetailRepository;
     private final OrderAssignmentHistoryRepository orderAssignmentHistoryRepository;
-    private final OrderCommentService orderCommentService;
 
     @Autowired
     public OrderDataService(OrderDataRepository orderDataRepository,
             WorkflowRepository workflowRepository,
             OrderApprovalRepository orderApprovalRepository,
             UserRepository userRepository,
-            OrderCommentRepository orderCommentRepository,
             OrderAttachmentRepository orderAttachmentRepository,
             OrderStatusRepository orderStatusRepository,
             OrderStatusHistoryRepository orderStatusHistoryRepository,
             WorkflowDetailRepository workflowDetailRepository,
-            OrderAssignmentHistoryRepository orderAssignmentHistoryRepository,
-            OrderCommentService orderCommentService) {
+            OrderAssignmentHistoryRepository orderAssignmentHistoryRepository) {
         this.orderDataRepository = orderDataRepository;
         this.workflowRepository = workflowRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.userRepository = userRepository;
-        this.orderCommentRepository = orderCommentRepository;
         this.orderAttachmentRepository = orderAttachmentRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.orderStatusHistoryRepository = orderStatusHistoryRepository;
         this.workflowDetailRepository = workflowDetailRepository;
         this.orderAssignmentHistoryRepository = orderAssignmentHistoryRepository;
-        this.orderCommentService = orderCommentService;
     }
 
     /**
@@ -293,16 +284,10 @@ public class OrderDataService {
      */
     @Transactional(readOnly = true)
     public OrderActivityResponse getOrderActivity(String orderId) {
-        // Validate order exists
-        OrderData order = findById(orderId);
-
-        // Get all comments for the order
-        List<OrderComment> comments = orderCommentRepository.findByOrderId(orderId);
-
         // Get attachment activities with document info using custom query
         List<OrderActivityResponse.OrderAttachmentActivity> attachmentActivities = getAttachmentActivities(orderId);
 
-        return new OrderActivityResponse(comments, attachmentActivities);
+        return new OrderActivityResponse(attachmentActivities);
     }
 
     /**
@@ -343,10 +328,6 @@ public class OrderDataService {
         // Find order
         OrderData order = findById(request.getOrderId());
 
-        // Find user
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-
         // Get workflow ID from order
         String workflowId = order.getWorkflow().getId();
 
@@ -386,14 +367,7 @@ public class OrderDataService {
         order.setCurrentRole(nextStage);
         OrderData updatedOrder = orderDataRepository.save(order);
 
-        // Create order comment record
-        CreateOrderCommentRequest commentRequest = new CreateOrderCommentRequest();
-        commentRequest.setOrderId(updatedOrder.getId());
-        commentRequest.setUserId(user.getId());
-        commentRequest.setCommentType(actionStage.toLowerCase());
-        commentRequest.setCommentText(request.getCommentText());
-
-        orderCommentService.save(commentRequest);
+        // Comment functionality removed - comments are no longer supported
 
         // Create order assignment history record
         OrderAssignmentHistory assignmentHistory = new OrderAssignmentHistory();

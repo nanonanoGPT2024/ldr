@@ -1,30 +1,17 @@
 package com.ldr.api.dto;
 
-import com.ldr.api.model.OrderComment;
-import com.ldr.api.model.OrderAttachment;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderActivityResponse {
 
-    private List<OrderComment> comments;
     private List<OrderAttachmentActivity> attachments;
 
     public OrderActivityResponse() {
     }
 
-    public OrderActivityResponse(List<OrderComment> comments, List<OrderAttachmentActivity> attachments) {
-        this.comments = comments;
+    public OrderActivityResponse(List<OrderAttachmentActivity> attachments) {
         this.attachments = attachments;
-    }
-
-    public List<OrderComment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<OrderComment> comments) {
-        this.comments = comments;
     }
 
     public List<OrderAttachmentActivity> getAttachments() {
