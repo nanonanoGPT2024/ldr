@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ldr.api.dto.CreateOrderCommentRequest;
 import com.ldr.api.dto.OrderActivityResponse;
 import com.ldr.api.exception.ResourceNotFoundException;
 import com.ldr.api.exception.ValidationException;
@@ -17,14 +18,25 @@ import com.ldr.api.model.OrderApproval;
 import com.ldr.api.model.OrderAttachment;
 import com.ldr.api.model.OrderComment;
 import com.ldr.api.model.OrderData;
+import com.ldr.api.dto.OrderActionRequest;
+import com.ldr.api.model.AssignmentType;
+import com.ldr.api.model.OrderAssignmentHistory;
+import com.ldr.api.model.OrderStatus;
+import com.ldr.api.model.OrderStatusHistory;
 import com.ldr.api.model.User;
 import com.ldr.api.model.Workflow;
+import com.ldr.api.model.WorkflowDetail;
 import com.ldr.api.repository.OrderApprovalRepository;
+import com.ldr.api.repository.OrderAssignmentHistoryRepository;
 import com.ldr.api.repository.OrderAttachmentRepository;
 import com.ldr.api.repository.OrderCommentRepository;
 import com.ldr.api.repository.OrderDataRepository;
+import com.ldr.api.repository.OrderStatusHistoryRepository;
+import com.ldr.api.repository.OrderStatusRepository;
 import com.ldr.api.repository.UserRepository;
+import com.ldr.api.repository.WorkflowDetailRepository;
 import com.ldr.api.repository.WorkflowRepository;
+import com.ldr.api.service.OrderCommentService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +51,11 @@ public class OrderDataService {
     private final UserRepository userRepository;
     private final OrderCommentRepository orderCommentRepository;
     private final OrderAttachmentRepository orderAttachmentRepository;
+    private final OrderStatusRepository orderStatusRepository;
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
+    private final WorkflowDetailRepository workflowDetailRepository;
+    private final OrderAssignmentHistoryRepository orderAssignmentHistoryRepository;
+    private final OrderCommentService orderCommentService;
 
     @Autowired
     public OrderDataService(OrderDataRepository orderDataRepository,
@@ -46,13 +63,23 @@ public class OrderDataService {
             OrderApprovalRepository orderApprovalRepository,
             UserRepository userRepository,
             OrderCommentRepository orderCommentRepository,
-            OrderAttachmentRepository orderAttachmentRepository) {
+            OrderAttachmentRepository orderAttachmentRepository,
+            OrderStatusRepository orderStatusRepository,
+            OrderStatusHistoryRepository orderStatusHistoryRepository,
+            WorkflowDetailRepository workflowDetailRepository,
+            OrderAssignmentHistoryRepository orderAssignmentHistoryRepository,
+            OrderCommentService orderCommentService) {
         this.orderDataRepository = orderDataRepository;
         this.workflowRepository = workflowRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.userRepository = userRepository;
         this.orderCommentRepository = orderCommentRepository;
         this.orderAttachmentRepository = orderAttachmentRepository;
+        this.orderStatusRepository = orderStatusRepository;
+        this.orderStatusHistoryRepository = orderStatusHistoryRepository;
+        this.workflowDetailRepository = workflowDetailRepository;
+        this.orderAssignmentHistoryRepository = orderAssignmentHistoryRepository;
+        this.orderCommentService = orderCommentService;
     }
 
     /**
@@ -208,8 +235,8 @@ public class OrderDataService {
     }
 
     /**
-     * Approve order and create approval record
-     * 
+     * Approve order and create approval record with status history
+     *
      * @param orderId          the order ID
      * @param approverUsername the username of the approver
      * @param approverRole     the role of the approver from JWT
@@ -222,6 +249,12 @@ public class OrderDataService {
         // Find approver user
         User approver = userRepository.findByUsername(approverUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Approver user not found: " + approverUsername));
+
+        // Find status codes
+        OrderStatus fromStatus = orderStatusRepository.findByCode("SUBMITTED")
+                .orElseThrow(() -> new ResourceNotFoundException("Status 'SUBMITTED' not found"));
+        OrderStatus toStatus = orderStatusRepository.findByCode("APPROVED")
+                .orElseThrow(() -> new ResourceNotFoundException("Status 'APPROVED' not found"));
 
         // Update order data fields
         orderData.setCurrentRole("bd");
@@ -240,6 +273,17 @@ public class OrderDataService {
         orderApproval.setApprovedAt(java.time.LocalDateTime.now());
 
         orderApprovalRepository.save(orderApproval);
+
+        // Create order status history record
+        OrderStatusHistory statusHistory = new OrderStatusHistory();
+        statusHistory.setId(java.util.UUID.randomUUID().toString());
+        statusHistory.setOrder(updatedOrder);
+        statusHistory.setFromStatus(fromStatus);
+        statusHistory.setToStatus(toStatus);
+        statusHistory.setChangedBy(approver);
+        statusHistory.setChangeReason("Order approved by " + approverRole + " - " + approverUsername);
+
+        orderStatusHistoryRepository.save(statusHistory);
 
         return updatedOrder;
     }
@@ -266,7 +310,7 @@ public class OrderDataService {
 
     /**
      * Get attachment activities with document information for an order
-     * 
+     *
      * @param orderId the order ID
      * @return List<OrderAttachmentActivity>
      */
@@ -283,6 +327,90 @@ public class OrderDataService {
                         attachment.getCreatedAt(),
                         attachment.getKeterangan()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Execute workflow action (next-stage, return-stage, reject-stage)
+     *
+     * @param actionStage the action stage (next-stage, return-stage, reject-stage)
+     * @param request     the order action request containing orderId and
+     *                    commentText
+     * @param username    the username from JWT token
+     * @param role        the role from JWT token
+     * @return updated OrderData
+     * @throws ResourceNotFoundException if order or workflow detail not found
+     * @throws ValidationException       if validation fails
+     */
+    public OrderData executeWorkflowAction(String actionStage, OrderActionRequest request, String username,
+            String role) {
+        // Find order
+        OrderData order = findById(request.getOrderId());
+
+        // Find user
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+        // Get workflow ID from order
+        String workflowId = order.getWorkflow().getId();
+
+        // Find workflow detail based on current role
+        WorkflowDetail workflowDetail = workflowDetailRepository.findByWorkflowId(workflowId).stream()
+                .filter(wfd -> wfd.getCurrentStage().equals(role) && wfd.isActive())
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Workflow detail not found for role: " + role + " in workflow: " + workflowId));
+
+        // Determine next stage based on action
+        String nextStage;
+        AssignmentType assignmentType;
+
+        switch (actionStage.toLowerCase()) {
+            case "next-stage":
+                nextStage = workflowDetail.getNextStage();
+                assignmentType = AssignmentType.ASSIGNED;
+                break;
+            case "return-stage":
+                nextStage = workflowDetail.getReturnStage();
+                assignmentType = AssignmentType.REASSIGNED;
+                break;
+            case "reject-stage":
+                nextStage = workflowDetail.getRejectStage();
+                assignmentType = AssignmentType.UNASSIGNED;
+                break;
+            default:
+                throw new ValidationException("Invalid action stage: " + actionStage);
+        }
+
+        if (nextStage == null || nextStage.trim().isEmpty()) {
+            throw new ValidationException("No " + actionStage + " defined for current role: " + role);
+        }
+
+        // Update order current role
+        order.setCurrentRole(nextStage);
+        OrderData updatedOrder = orderDataRepository.save(order);
+
+        // Create order comment record
+        CreateOrderCommentRequest commentRequest = new CreateOrderCommentRequest();
+        commentRequest.setOrderId(updatedOrder.getId());
+        commentRequest.setUserId(user.getId());
+        commentRequest.setCommentType(actionStage.toLowerCase());
+        commentRequest.setCommentText(request.getCommentText());
+
+        orderCommentService.save(commentRequest);
+
+        // Create order assignment history record
+        OrderAssignmentHistory assignmentHistory = new OrderAssignmentHistory();
+        assignmentHistory.setId(java.util.UUID.randomUUID().toString());
+        assignmentHistory.setOrder(updatedOrder);
+        assignmentHistory.setAssignedToRole(nextStage); // Assign to the role (next stage)
+        assignmentHistory.setAssignedByRole(role); // Role performing the action
+        assignmentHistory.setAssignmentType(assignmentType);
+        assignmentHistory
+                .setNotes(request.getCommentText() + " - Action: " + actionStage + " - Assigned to role: " + nextStage);
+
+        orderAssignmentHistoryRepository.save(assignmentHistory);
+
+        return updatedOrder;
     }
 
 }

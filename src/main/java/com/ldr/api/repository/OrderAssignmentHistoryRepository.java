@@ -12,22 +12,25 @@ public interface OrderAssignmentHistoryRepository extends JpaRepository<OrderAss
 
     /**
      * Find all OrderAssignmentHistory by order ID
+     * 
      * @param orderId the order ID
      * @return List<OrderAssignmentHistory>
      */
     List<OrderAssignmentHistory> findByOrderId(String orderId);
 
     /**
-     * Find all OrderAssignmentHistory by assigned to user ID
-     * @param assignedToId the user ID who was assigned to
+     * Find all OrderAssignmentHistory by assigned to role
+     * 
+     * @param assignedToRole the role who was assigned to
      * @return List<OrderAssignmentHistory>
      */
-    List<OrderAssignmentHistory> findByAssignedToId(String assignedToId);
+    List<OrderAssignmentHistory> findByAssignedToRole(String assignedToRole);
 
     /**
      * Find all OrderAssignmentHistory by assigned at between dates
+     * 
      * @param startDate the start date
-     * @param endDate the end date
+     * @param endDate   the end date
      * @return List<OrderAssignmentHistory>
      */
     List<OrderAssignmentHistory> findByAssignedAtBetween(LocalDateTime startDate, LocalDateTime endDate);

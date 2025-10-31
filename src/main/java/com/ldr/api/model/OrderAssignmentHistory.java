@@ -19,13 +19,11 @@ public class OrderAssignmentHistory {
     @JoinColumn(name = "order_id", nullable = false)
     private OrderData order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to", nullable = false)
-    private User assignedTo;
+    @Column(name = "assigned_to_role", length = 50)
+    private String assignedToRole;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_by", nullable = false)
-    private User assignedBy;
+    @Column(name = "assigned_by_role", length = 50)
+    private String assignedByRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "assignment_type", nullable = false)
@@ -39,13 +37,15 @@ public class OrderAssignmentHistory {
     private LocalDateTime assignedAt;
 
     // Constructors
-    public OrderAssignmentHistory() {}
+    public OrderAssignmentHistory() {
+    }
 
-    public OrderAssignmentHistory(String id, OrderData order, User assignedTo, User assignedBy, AssignmentType assignmentType, String notes) {
+    public OrderAssignmentHistory(String id, OrderData order, String assignedToRole, String assignedByRole,
+            AssignmentType assignmentType, String notes) {
         this.id = id;
         this.order = order;
-        this.assignedTo = assignedTo;
-        this.assignedBy = assignedBy;
+        this.assignedToRole = assignedToRole;
+        this.assignedByRole = assignedByRole;
         this.assignmentType = assignmentType;
         this.notes = notes;
     }
@@ -67,20 +67,20 @@ public class OrderAssignmentHistory {
         this.order = order;
     }
 
-    public User getAssignedTo() {
-        return assignedTo;
+    public String getAssignedToRole() {
+        return assignedToRole;
     }
 
-    public void setAssignedTo(User assignedTo) {
-        this.assignedTo = assignedTo;
+    public void setAssignedToRole(String assignedToRole) {
+        this.assignedToRole = assignedToRole;
     }
 
-    public User getAssignedBy() {
-        return assignedBy;
+    public String getAssignedByRole() {
+        return assignedByRole;
     }
 
-    public void setAssignedBy(User assignedBy) {
-        this.assignedBy = assignedBy;
+    public void setAssignedByRole(String assignedByRole) {
+        this.assignedByRole = assignedByRole;
     }
 
     public AssignmentType getAssignmentType() {
@@ -112,8 +112,8 @@ public class OrderAssignmentHistory {
         return "OrderAssignmentHistory{" +
                 "id='" + id + '\'' +
                 ", order=" + (order != null ? order.getOrderNumber() : null) +
-                ", assignedTo=" + (assignedTo != null ? assignedTo.getUsername() : null) +
-                ", assignedBy=" + (assignedBy != null ? assignedBy.getUsername() : null) +
+                ", assignedToRole='" + assignedToRole + '\'' +
+                ", assignedByRole='" + assignedByRole + '\'' +
                 ", assignmentType=" + assignmentType +
                 ", notes='" + notes + '\'' +
                 ", assignedAt=" + assignedAt +

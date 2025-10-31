@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ldr.api.dto.ApiPageResponse;
 import com.ldr.api.dto.CreateOrderDataRequest;
+import com.ldr.api.dto.OrderActionRequest;
 import com.ldr.api.dto.OrderActivityResponse;
 import com.ldr.api.dto.UpdateOrderDataRequest;
 import com.ldr.api.exception.ResourceNotFoundException;
@@ -292,17 +293,30 @@ public class OrderDataController {
         }
     }
 
-    // @GetMapping("/deleted/{isDeleted}")
-    // @Operation(summary = "Get OrderData by Deleted Status", description =
-    // "Retrieve order data by deleted status")
-    // @ApiResponses(value = {
-    // @ApiResponse(responseCode = "200", description = "Successfully retrieved
-    // list"),
-    // @ApiResponse(responseCode = "500", description = "Internal server error")
-    // })
-    // public ResponseEntity<List<OrderData>> getOrdersByDeletedStatus(
-    // @Parameter(description = "Is Deleted") @PathVariable boolean isDeleted) {
-    // List<OrderData> orders = orderDataService.findByIsDeleted(isDeleted);
-    // return ResponseEntity.ok(orders);
-    // }
+    @PostMapping("/action/{actionStage}")
+    @Operation(summary = "Execute workflow action", description = "Execute workflow action (next-stage, return-stage, reject-stage) for an order")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Action executed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid action stage or request data"),
+            @ApiResponse(responseCode = "404", description = "Order or workflow detail not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<OrderData> executeWorkflowAction(
+            @Parameter(description = "Action stage (next-stage, return-stage, reject-stage)") @PathVariable String actionStage,
+            @Parameter(description = "OrderActionRequest object") @Valid @RequestBody OrderActionRequest request,
+            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token) {
+        try {
+            // Extract user and role from JWT token
+            String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
+            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+
+            OrderData updatedOrder = orderDataService.executeWorkflowAction(actionStage, request, username, role);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (ValidationException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

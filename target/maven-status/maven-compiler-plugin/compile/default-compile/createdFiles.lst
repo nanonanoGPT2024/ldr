@@ -48,6 +48,7 @@ com\ldr\api\exception\ValidationException.class
 com\ldr\api\model\OrderAttachment.class
 com\ldr\api\dto\AuthResponse.class
 com\ldr\api\service\UserService.class
+com\ldr\api\controller\OrderCommentController.class
 com\ldr\api\model\OrderAssignmentHistory.class
 com\ldr\api\security\JwtUtil.class
 com\ldr\api\service\DocumentSourceService.class
@@ -72,6 +73,7 @@ com\ldr\api\dto\ServiceCostTypeDto.class
 com\ldr\api\exception\ResourceNotFoundException.class
 com\ldr\api\dto\FileUploadResponse.class
 com\ldr\api\repository\OrderStatusHistoryRepository.class
+com\ldr\api\dto\CreateOrderCommentRequest.class
 com\ldr\api\model\Workflow.class
 com\ldr\api\model\AssignmentType.class
 com\ldr\api\service\OrderAttachmentService.class
@@ -79,6 +81,7 @@ com\ldr\api\model\OrderComment.class
 com\ldr\api\dto\OrderActivityResponse$OrderAttachmentActivity.class
 com\ldr\api\service\ServiceCostTypeService.class
 com\ldr\api\dto\OrderDataSearchRequest.class
+com\ldr\api\dto\OrderActionRequest.class
 com\ldr\api\dto\ApiErrorResponse.class
 com\ldr\api\repository\WorkflowDetailRepository.class
 com\ldr\api\repository\DocumentRepository.class

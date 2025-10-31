@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ldr.api.dto.CreateOrderCommentRequest;
 import com.ldr.api.exception.ValidationException;
 import com.ldr.api.model.OrderComment;
 import com.ldr.api.service.OrderCommentService;
@@ -39,9 +40,9 @@ public class OrderCommentController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<OrderComment> createOrderComment(
-            @Parameter(description = "OrderComment object") @Valid @RequestBody OrderComment orderComment) {
+            @Parameter(description = "CreateOrderCommentRequest object") @Valid @RequestBody CreateOrderCommentRequest request) {
         try {
-            OrderComment createdOrderComment = orderCommentService.save(orderComment);
+            OrderComment createdOrderComment = orderCommentService.save(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdOrderComment);
         } catch (ValidationException e) {
             return ResponseEntity.badRequest().build();

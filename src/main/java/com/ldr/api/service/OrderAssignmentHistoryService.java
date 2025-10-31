@@ -1,21 +1,20 @@
 package com.ldr.api.service;
 
-import com.ldr.api.exception.ResourceNotFoundException;
-import com.ldr.api.exception.ValidationException;
-import com.ldr.api.model.AssignmentType;
-import com.ldr.api.model.OrderAssignmentHistory;
-import com.ldr.api.model.OrderData;
-import com.ldr.api.model.User;
-import com.ldr.api.repository.OrderAssignmentHistoryRepository;
-import com.ldr.api.repository.OrderDataRepository;
-import com.ldr.api.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.ldr.api.exception.ResourceNotFoundException;
+import com.ldr.api.exception.ValidationException;
+import com.ldr.api.model.OrderAssignmentHistory;
+import com.ldr.api.model.OrderData;
+import com.ldr.api.repository.OrderAssignmentHistoryRepository;
+import com.ldr.api.repository.OrderDataRepository;
+import com.ldr.api.repository.UserRepository;
 
 @Service
 @Transactional
@@ -27,8 +26,8 @@ public class OrderAssignmentHistoryService {
 
     @Autowired
     public OrderAssignmentHistoryService(OrderAssignmentHistoryRepository orderAssignmentHistoryRepository,
-                                        OrderDataRepository orderDataRepository,
-                                        UserRepository userRepository) {
+            OrderDataRepository orderDataRepository,
+            UserRepository userRepository) {
         this.orderAssignmentHistoryRepository = orderAssignmentHistoryRepository;
         this.orderDataRepository = orderDataRepository;
         this.userRepository = userRepository;
@@ -36,6 +35,7 @@ public class OrderAssignmentHistoryService {
 
     /**
      * Find all OrderAssignmentHistory entities
+     * 
      * @return List<OrderAssignmentHistory>
      */
     @Transactional(readOnly = true)
@@ -45,6 +45,7 @@ public class OrderAssignmentHistoryService {
 
     /**
      * Find OrderAssignmentHistory by ID
+     * 
      * @param id the OrderAssignmentHistory ID
      * @return OrderAssignmentHistory
      * @throws ResourceNotFoundException if not found
@@ -57,6 +58,7 @@ public class OrderAssignmentHistoryService {
 
     /**
      * Save a new OrderAssignmentHistory
+     * 
      * @param orderAssignmentHistory the OrderAssignmentHistory to save
      * @return saved OrderAssignmentHistory
      * @throws ValidationException if validation fails
@@ -67,17 +69,19 @@ public class OrderAssignmentHistoryService {
         try {
             return orderAssignmentHistoryRepository.save(orderAssignmentHistory);
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Failed to save OrderAssignmentHistory due to data integrity violation: " + e.getMessage());
+            throw new ValidationException(
+                    "Failed to save OrderAssignmentHistory due to data integrity violation: " + e.getMessage());
         }
     }
 
     /**
      * Update an existing OrderAssignmentHistory
-     * @param id the OrderAssignmentHistory ID
+     * 
+     * @param id                     the OrderAssignmentHistory ID
      * @param orderAssignmentHistory the updated OrderAssignmentHistory
      * @return updated OrderAssignmentHistory
      * @throws ResourceNotFoundException if not found
-     * @throws ValidationException if validation fails
+     * @throws ValidationException       if validation fails
      */
     public OrderAssignmentHistory update(String id, OrderAssignmentHistory orderAssignmentHistory) {
         OrderAssignmentHistory existingOrderAssignmentHistory = findById(id);
@@ -86,8 +90,8 @@ public class OrderAssignmentHistoryService {
 
         // Update fields
         existingOrderAssignmentHistory.setOrder(orderAssignmentHistory.getOrder());
-        existingOrderAssignmentHistory.setAssignedTo(orderAssignmentHistory.getAssignedTo());
-        existingOrderAssignmentHistory.setAssignedBy(orderAssignmentHistory.getAssignedBy());
+        existingOrderAssignmentHistory.setAssignedToRole(orderAssignmentHistory.getAssignedToRole());
+        existingOrderAssignmentHistory.setAssignedByRole(orderAssignmentHistory.getAssignedByRole());
         existingOrderAssignmentHistory.setAssignmentType(orderAssignmentHistory.getAssignmentType());
         existingOrderAssignmentHistory.setNotes(orderAssignmentHistory.getNotes());
         // Note: assignedAt is automatically set by @CreatedDate annotation
@@ -95,12 +99,14 @@ public class OrderAssignmentHistoryService {
         try {
             return orderAssignmentHistoryRepository.save(existingOrderAssignmentHistory);
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Failed to update OrderAssignmentHistory due to data integrity violation: " + e.getMessage());
+            throw new ValidationException(
+                    "Failed to update OrderAssignmentHistory due to data integrity violation: " + e.getMessage());
         }
     }
 
     /**
      * Delete OrderAssignmentHistory by ID
+     * 
      * @param id the OrderAssignmentHistory ID
      * @throws ResourceNotFoundException if not found
      */
@@ -109,12 +115,14 @@ public class OrderAssignmentHistoryService {
         try {
             orderAssignmentHistoryRepository.delete(orderAssignmentHistory);
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Cannot delete OrderAssignmentHistory as it is referenced by other records: " + id);
+            throw new ValidationException(
+                    "Cannot delete OrderAssignmentHistory as it is referenced by other records: " + id);
         }
     }
 
     /**
      * Find all OrderAssignmentHistory by order ID
+     * 
      * @param orderId the order ID
      * @return List<OrderAssignmentHistory>
      */
@@ -124,19 +132,21 @@ public class OrderAssignmentHistoryService {
     }
 
     /**
-     * Find all OrderAssignmentHistory by assigned to user ID
-     * @param assignedTo the user ID who was assigned to
+     * Find all OrderAssignmentHistory by assigned to role
+     *
+     * @param assignedToRole the role who was assigned to
      * @return List<OrderAssignmentHistory>
      */
     @Transactional(readOnly = true)
-    public List<OrderAssignmentHistory> findByAssignedTo(String assignedTo) {
-        return orderAssignmentHistoryRepository.findByAssignedToId(assignedTo);
+    public List<OrderAssignmentHistory> findByAssignedToRole(String assignedToRole) {
+        return orderAssignmentHistoryRepository.findByAssignedToRole(assignedToRole);
     }
 
     /**
      * Find all OrderAssignmentHistory by assigned at between dates
+     * 
      * @param startDate the start date
-     * @param endDate the end date
+     * @param endDate   the end date
      * @return List<OrderAssignmentHistory>
      */
     @Transactional(readOnly = true)
@@ -146,6 +156,7 @@ public class OrderAssignmentHistoryService {
 
     /**
      * Validate OrderAssignmentHistory entity
+     * 
      * @param orderAssignmentHistory the OrderAssignmentHistory to validate
      * @throws ValidationException if validation fails
      */
@@ -164,23 +175,18 @@ public class OrderAssignmentHistoryService {
 
         // Validate order exists
         OrderData order = orderDataRepository.findById(orderAssignmentHistory.getOrder().getId())
-                .orElseThrow(() -> new ValidationException("Order not found with id: " + orderAssignmentHistory.getOrder().getId()));
+                .orElseThrow(() -> new ValidationException(
+                        "Order not found with id: " + orderAssignmentHistory.getOrder().getId()));
 
-        if (orderAssignmentHistory.getAssignedTo() == null) {
-            throw new ValidationException("Assigned to user is required");
+        if (orderAssignmentHistory.getAssignedToRole() == null
+                || orderAssignmentHistory.getAssignedToRole().trim().isEmpty()) {
+            throw new ValidationException("Assigned to role is required");
         }
 
-        // Validate assignedTo exists
-        User assignedTo = userRepository.findById(orderAssignmentHistory.getAssignedTo().getId())
-                .orElseThrow(() -> new ValidationException("Assigned to user not found with id: " + orderAssignmentHistory.getAssignedTo().getId()));
-
-        if (orderAssignmentHistory.getAssignedBy() == null) {
-            throw new ValidationException("Assigned by user is required");
+        if (orderAssignmentHistory.getAssignedByRole() == null
+                || orderAssignmentHistory.getAssignedByRole().trim().isEmpty()) {
+            throw new ValidationException("Assigned by role is required");
         }
-
-        // Validate assignedBy exists
-        User assignedBy = userRepository.findById(orderAssignmentHistory.getAssignedBy().getId())
-                .orElseThrow(() -> new ValidationException("Assigned by user not found with id: " + orderAssignmentHistory.getAssignedBy().getId()));
 
         if (orderAssignmentHistory.getAssignmentType() == null) {
             throw new ValidationException("Assignment type is required");
