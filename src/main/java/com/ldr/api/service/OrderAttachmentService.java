@@ -29,6 +29,7 @@ public class OrderAttachmentService {
     private final OrderDataRepository orderDataRepository;
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
+    private final OrderAttachmentHistoryRepository orderAttachmentHistoryRepository;
 
     @Value("${file.upload.dir}")
     private String uploadDir;
@@ -40,11 +41,13 @@ public class OrderAttachmentService {
     public OrderAttachmentService(OrderAttachmentRepository orderAttachmentRepository,
             OrderDataRepository orderDataRepository,
             UserRepository userRepository,
-            DocumentRepository documentRepository) {
+            DocumentRepository documentRepository,
+            OrderAttachmentHistoryRepository orderAttachmentHistoryRepository) {
         this.orderAttachmentRepository = orderAttachmentRepository;
         this.orderDataRepository = orderDataRepository;
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
+        this.orderAttachmentHistoryRepository = orderAttachmentHistoryRepository;
 
         // Create upload directory if it doesn't exist
         try {
@@ -293,8 +296,12 @@ public class OrderAttachmentService {
     }
 
     /**
-     * Upload file and save to order_attachment table
-     *
+     * Upload file and save to both order_attachment and order_attachment_history
+     * tables
+     * Logic: If OrderAttachment exists for the same order+document combination,
+     * update it.
+     * If not exists, insert new. Always insert new history record.
+     * 
      * @param file             the multipart file to upload
      * @param orderId          the order ID
      * @param documentId       the document ID (optional)
@@ -337,6 +344,8 @@ public class OrderAttachmentService {
             OrderAttachment existingAttachment = findExistingAttachment(orderId, documentId);
 
             OrderAttachment savedAttachment;
+            ChangeType changeType;
+            String changeReason;
 
             if (existingAttachment != null) {
                 // Update existing attachment
@@ -347,8 +356,15 @@ public class OrderAttachmentService {
                 existingAttachment.setFileSize(file.getSize());
                 existingAttachment.setFileType(getFileType(fileExtension));
                 existingAttachment.setMimeType(file.getContentType());
+                // Note: OrderAttachment doesn't have updatedBy field, only uploadedBy
 
                 savedAttachment = save(existingAttachment);
+                changeType = ChangeType.UPDATED;
+                changeReason = "File replaced with new upload";
+
+                // Note: Keep old file for history download functionality
+                // Old files are not deleted to maintain download capability from history
+                // records
             } else {
                 // Create new attachment
                 OrderAttachment attachment = new OrderAttachment();
@@ -366,7 +382,32 @@ public class OrderAttachmentService {
                 attachment.setActive(true);
 
                 savedAttachment = save(attachment);
+                changeType = ChangeType.CREATED;
+                changeReason = "Initial file upload";
             }
+
+            // Always create new history record
+            OrderAttachmentHistory history = new OrderAttachmentHistory();
+            history.setId(UUID.randomUUID().toString());
+            history.setOrderAttachment(savedAttachment);
+            history.setOrder(order);
+            history.setFileName(uniqueFilename);
+            history.setOriginalFileName(originalFilename);
+            history.setFilePath(filePath);
+            history.setFileSize(file.getSize());
+            history.setMimeType(file.getContentType());
+            history.setDocument(document);
+            history.setKeterangan(keterangan);
+            history.setVersionNumber(getNextVersionNumber(savedAttachment.getId()));
+            history.setActive(true);
+            history.setUploadedBy(uploader);
+            history.setUploadedAt(LocalDateTime.now());
+            history.setChangeType(changeType);
+            history.setChangedBy(uploader);
+            history.setChangedAt(LocalDateTime.now());
+            history.setChangeReason(changeReason);
+
+            orderAttachmentHistoryRepository.save(history);
 
             String fileUrl = "/api/files/" + uniqueFilename; // Assuming there's a file serving endpoint
 
@@ -407,13 +448,16 @@ public class OrderAttachmentService {
 
     /**
      * Get next version number for attachment history
-     *
+     * 
      * @param attachmentId the attachment ID
      * @return next version number
      */
     private Long getNextVersionNumber(String attachmentId) {
-        // Simplified version number logic - always return 1 for now
-        return 1L;
+        List<OrderAttachmentHistory> histories = orderAttachmentHistoryRepository.findByOrderAttachmentId(attachmentId);
+        return histories.stream()
+                .mapToLong(OrderAttachmentHistory::getVersionNumber)
+                .max()
+                .orElse(0L) + 1;
     }
 
     /**
