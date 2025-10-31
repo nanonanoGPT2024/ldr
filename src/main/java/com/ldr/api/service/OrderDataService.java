@@ -10,16 +10,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ldr.api.dto.OrderActivityResponse;
 import com.ldr.api.exception.ResourceNotFoundException;
 import com.ldr.api.exception.ValidationException;
 import com.ldr.api.model.OrderApproval;
+import com.ldr.api.model.OrderAttachment;
+import com.ldr.api.model.OrderComment;
 import com.ldr.api.model.OrderData;
 import com.ldr.api.model.User;
 import com.ldr.api.model.Workflow;
 import com.ldr.api.repository.OrderApprovalRepository;
+import com.ldr.api.repository.OrderAttachmentRepository;
+import com.ldr.api.repository.OrderCommentRepository;
 import com.ldr.api.repository.OrderDataRepository;
 import com.ldr.api.repository.UserRepository;
 import com.ldr.api.repository.WorkflowRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -29,39 +37,47 @@ public class OrderDataService {
     private final WorkflowRepository workflowRepository;
     private final OrderApprovalRepository orderApprovalRepository;
     private final UserRepository userRepository;
+    private final OrderCommentRepository orderCommentRepository;
+    private final OrderAttachmentRepository orderAttachmentRepository;
 
     @Autowired
     public OrderDataService(OrderDataRepository orderDataRepository,
-                           WorkflowRepository workflowRepository,
-                           OrderApprovalRepository orderApprovalRepository,
-                           UserRepository userRepository) {
+            WorkflowRepository workflowRepository,
+            OrderApprovalRepository orderApprovalRepository,
+            UserRepository userRepository,
+            OrderCommentRepository orderCommentRepository,
+            OrderAttachmentRepository orderAttachmentRepository) {
         this.orderDataRepository = orderDataRepository;
         this.workflowRepository = workflowRepository;
         this.orderApprovalRepository = orderApprovalRepository;
         this.userRepository = userRepository;
+        this.orderCommentRepository = orderCommentRepository;
+        this.orderAttachmentRepository = orderAttachmentRepository;
     }
 
     /**
      * Find all OrderData entities with pagination and search
-     * @param searchTerm search term
-     * @param statusId status filter
-     * @param priorityId priority filter
+     * 
+     * @param searchTerm  search term
+     * @param statusId    status filter
+     * @param priorityId  priority filter
      * @param requestorId requestor filter
-     * @param startDate date from filter
-     * @param endDate date to filter
-     * @param pageable pagination info
+     * @param startDate   date from filter
+     * @param endDate     date to filter
+     * @param pageable    pagination info
      * @return Page<OrderData>
      */
     @Transactional(readOnly = true)
     public Page<OrderData> findAllWithFilters(String searchTerm, String statusId, String priorityId,
-                                             String requestorId, String currentRole, LocalDate startDate, LocalDate endDate,
-                                             Pageable pageable) {
+            String requestorId, String currentRole, LocalDate startDate, LocalDate endDate,
+            Pageable pageable) {
         return orderDataRepository.findWithFilters(searchTerm, statusId, priorityId, requestorId, currentRole,
-                                                 startDate, endDate, pageable);
+                startDate, endDate, pageable);
     }
 
     /**
      * Find all OrderData entities (legacy method)
+     * 
      * @return List<OrderData>
      */
     @Transactional(readOnly = true)
@@ -71,6 +87,7 @@ public class OrderDataService {
 
     /**
      * Find OrderData by ID
+     * 
      * @param id the OrderData ID
      * @return OrderData
      * @throws ResourceNotFoundException if not found
@@ -83,6 +100,7 @@ public class OrderDataService {
 
     /**
      * Save a new OrderData
+     * 
      * @param orderData the OrderData to save
      * @return saved OrderData
      * @throws ValidationException if validation fails
@@ -91,17 +109,19 @@ public class OrderDataService {
         try {
             return orderDataRepository.save(orderData);
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Failed to save OrderData due to data integrity violation: " + e.getMessage());
+            throw new ValidationException(
+                    "Failed to save OrderData due to data integrity violation: " + e.getMessage());
         }
     }
 
     /**
      * Update an existing OrderData
-     * @param id the OrderData ID
+     * 
+     * @param id        the OrderData ID
      * @param orderData the updated OrderData
      * @return updated OrderData
      * @throws ResourceNotFoundException if not found
-     * @throws ValidationException if validation fails
+     * @throws ValidationException       if validation fails
      */
     public OrderData update(String id, OrderData orderData) {
         OrderData existingOrderData = findById(id);
@@ -145,12 +165,14 @@ public class OrderDataService {
         try {
             return orderDataRepository.save(existingOrderData);
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException("Failed to update OrderData due to data integrity violation: " + e.getMessage());
+            throw new ValidationException(
+                    "Failed to update OrderData due to data integrity violation: " + e.getMessage());
         }
     }
 
     /**
      * Delete OrderData by ID
+     * 
      * @param id the OrderData ID
      * @throws ResourceNotFoundException if not found
      */
@@ -163,9 +185,9 @@ public class OrderDataService {
         }
     }
 
-
     /**
      * Find OrderData by deleted status
+     * 
      * @param isDeleted the deleted status
      * @return List<OrderData>
      */
@@ -176,6 +198,7 @@ public class OrderDataService {
 
     /**
      * Find Workflow by name
+     * 
      * @param name the workflow name
      * @return Workflow
      */
@@ -186,9 +209,10 @@ public class OrderDataService {
 
     /**
      * Approve order and create approval record
-     * @param orderId the order ID
+     * 
+     * @param orderId          the order ID
      * @param approverUsername the username of the approver
-     * @param approverRole the role of the approver from JWT
+     * @param approverRole     the role of the approver from JWT
      * @return updated OrderData
      * @throws ResourceNotFoundException if order not found
      */
@@ -218,6 +242,47 @@ public class OrderDataService {
         orderApprovalRepository.save(orderApproval);
 
         return updatedOrder;
+    }
+
+    /**
+     * Get order activity data including comments and attachments with document info
+     * 
+     * @param orderId the order ID
+     * @return OrderActivityResponse containing comments and attachment activities
+     */
+    @Transactional(readOnly = true)
+    public OrderActivityResponse getOrderActivity(String orderId) {
+        // Validate order exists
+        OrderData order = findById(orderId);
+
+        // Get all comments for the order
+        List<OrderComment> comments = orderCommentRepository.findByOrderId(orderId);
+
+        // Get attachment activities with document info using custom query
+        List<OrderActivityResponse.OrderAttachmentActivity> attachmentActivities = getAttachmentActivities(orderId);
+
+        return new OrderActivityResponse(comments, attachmentActivities);
+    }
+
+    /**
+     * Get attachment activities with document information for an order
+     * 
+     * @param orderId the order ID
+     * @return List<OrderAttachmentActivity>
+     */
+    @Transactional(readOnly = true)
+    public List<OrderActivityResponse.OrderAttachmentActivity> getAttachmentActivities(String orderId) {
+        // This would typically use a custom repository method or @Query
+        // For now, we'll implement it using existing repository methods
+        List<OrderAttachment> attachments = orderAttachmentRepository.findByOrderId(orderId);
+
+        return attachments.stream()
+                .filter(attachment -> attachment.getDocument() != null)
+                .map(attachment -> new OrderActivityResponse.OrderAttachmentActivity(
+                        attachment.getDocument().getName(),
+                        attachment.getCreatedAt(),
+                        attachment.getKeterangan()))
+                .collect(Collectors.toList());
     }
 
 }

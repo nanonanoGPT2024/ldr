@@ -1,11 +1,19 @@
 package com.ldr.api.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "order_comment")
@@ -55,7 +63,8 @@ public class OrderComment {
     private Long version = 0L;
 
     // Constructors
-    public OrderComment() {}
+    public OrderComment() {
+    }
 
     public OrderComment(String id, OrderData order, User user, String commentType, String commentText) {
         this.id = id;

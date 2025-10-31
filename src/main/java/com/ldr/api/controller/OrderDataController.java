@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ldr.api.dto.ApiPageResponse;
 import com.ldr.api.dto.CreateOrderDataRequest;
+import com.ldr.api.dto.OrderActivityResponse;
 import com.ldr.api.dto.UpdateOrderDataRequest;
 import com.ldr.api.exception.ResourceNotFoundException;
 import com.ldr.api.exception.ValidationException;
@@ -60,8 +61,8 @@ public class OrderDataController {
     @GetMapping("/request")
     @Operation(summary = "Get all OrderData for request view", description = "Retrieve paginated list of order data for request management view")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ApiPageResponse<OrderData>> getAllOrdersRequest(
             @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token,
@@ -93,17 +94,18 @@ public class OrderDataController {
         }
 
         Page<OrderData> orders = orderDataService.findAllWithFilters(search, statusId, priorityId,
-                                                                   requestorId, null, startDate, endDate, pageable);
+                requestorId, null, startDate, endDate, pageable);
 
-        ApiPageResponse<OrderData> response = new ApiPageResponse<>(true, "Request data retrieved successfully", orders);
+        ApiPageResponse<OrderData> response = new ApiPageResponse<>(true, "Request data retrieved successfully",
+                orders);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/tracking")
     @Operation(summary = "Get all OrderData for tracking view", description = "Retrieve paginated list of order data for tracking and monitoring view")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ApiPageResponse<OrderData>> getAllOrdersTracking(
             @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token,
@@ -126,17 +128,18 @@ public class OrderDataController {
         String statusId = "IN_PROGRESS";
 
         Page<OrderData> orders = orderDataService.findAllWithFilters(search, statusId, priorityId,
-                                                                   null, role, startDate, endDate, pageable);
+                null, role, startDate, endDate, pageable);
 
-        ApiPageResponse<OrderData> response = new ApiPageResponse<>(true, "Tracking data retrieved successfully", orders);
+        ApiPageResponse<OrderData> response = new ApiPageResponse<>(true, "Tracking data retrieved successfully",
+                orders);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/final")
     @Operation(summary = "Get all OrderData for final approval view", description = "Retrieve paginated list of order data for final approval and completion view")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved paginated list"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ApiPageResponse<OrderData>> getAllOrdersFinal(
             @Parameter(description = "Search term for title, description, or client name") @RequestParam(required = false) String search,
@@ -155,7 +158,7 @@ public class OrderDataController {
         String statusId = "COMPLETED";
 
         Page<OrderData> orders = orderDataService.findAllWithFilters(search, statusId, priorityId,
-                                                                   null, null, startDate, endDate, pageable);
+                null, null, startDate, endDate, pageable);
 
         ApiPageResponse<OrderData> response = new ApiPageResponse<>(true, "Final data retrieved successfully", orders);
         return ResponseEntity.ok(response);
@@ -164,9 +167,9 @@ public class OrderDataController {
     @GetMapping("/{id}")
     @Operation(summary = "Get OrderData by ID", description = "Retrieve a specific order data by its ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved order data"),
-        @ApiResponse(responseCode = "404", description = "OrderData not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved order data"),
+            @ApiResponse(responseCode = "404", description = "OrderData not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<OrderData> getOrderById(
             @Parameter(description = "OrderData ID") @PathVariable String id) {
@@ -181,9 +184,9 @@ public class OrderDataController {
     @PostMapping
     @Operation(summary = "Create OrderData", description = "Create a new order data")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "OrderData created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "201", description = "OrderData created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<OrderData> createOrder(
             @Parameter(description = "CreateOrderDataRequest object") @Valid @RequestBody CreateOrderDataRequest request) {
@@ -208,10 +211,10 @@ public class OrderDataController {
     @PutMapping("/{id}")
     @Operation(summary = "Update OrderData", description = "Update an existing order data")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "OrderData updated successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "404", description = "OrderData not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "OrderData updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "OrderData not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<OrderData> updateOrder(
             @Parameter(description = "OrderData ID") @PathVariable String id,
@@ -230,10 +233,10 @@ public class OrderDataController {
     @PatchMapping("/approved/{orderId}")
     @Operation(summary = "Approve OrderData", description = "Approve an order data and update status to IN_PROGRESS with BD role")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "OrderData approved successfully"),
-        @ApiResponse(responseCode = "404", description = "OrderData not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid request"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "200", description = "OrderData approved successfully"),
+            @ApiResponse(responseCode = "404", description = "OrderData not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<OrderData> approveOrder(
             @Parameter(description = "OrderData ID") @PathVariable String orderId,
@@ -242,7 +245,7 @@ public class OrderDataController {
             // Extract user and role from JWT token
             String approverUsername = jwtUtil.extractUsername(token.replace("Bearer ", ""));
             String approverRole = jwtUtil.extractRole(token.replace("Bearer ", ""));
-    
+
             OrderData approvedOrder = orderDataService.approveOrder(orderId, approverUsername, approverRole);
             return ResponseEntity.ok(approvedOrder);
         } catch (ResourceNotFoundException e) {
@@ -255,10 +258,10 @@ public class OrderDataController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete OrderData", description = "Delete an order data by its ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "OrderData deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "OrderData not found"),
-        @ApiResponse(responseCode = "409", description = "Cannot delete order data as it is referenced by other records"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "204", description = "OrderData deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "OrderData not found"),
+            @ApiResponse(responseCode = "409", description = "Cannot delete order data as it is referenced by other records"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Void> deleteOrder(
             @Parameter(description = "OrderData ID") @PathVariable String id) {
@@ -272,16 +275,34 @@ public class OrderDataController {
         }
     }
 
+    @GetMapping("/activity/{orderId}")
+    @Operation(summary = "Get Order Activity", description = "Retrieve order activity including comments and attachment activities with document information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved order activity"),
+            @ApiResponse(responseCode = "404", description = "OrderData not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<OrderActivityResponse> getOrderActivity(
+            @Parameter(description = "OrderData ID") @PathVariable String orderId) {
+        try {
+            OrderActivityResponse activity = orderDataService.getOrderActivity(orderId);
+            return ResponseEntity.ok(activity);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     // @GetMapping("/deleted/{isDeleted}")
-    // @Operation(summary = "Get OrderData by Deleted Status", description = "Retrieve order data by deleted status")
+    // @Operation(summary = "Get OrderData by Deleted Status", description =
+    // "Retrieve order data by deleted status")
     // @ApiResponses(value = {
-    //     @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
-    //     @ApiResponse(responseCode = "500", description = "Internal server error")
+    // @ApiResponse(responseCode = "200", description = "Successfully retrieved
+    // list"),
+    // @ApiResponse(responseCode = "500", description = "Internal server error")
     // })
     // public ResponseEntity<List<OrderData>> getOrdersByDeletedStatus(
-    //         @Parameter(description = "Is Deleted") @PathVariable boolean isDeleted) {
-    //     List<OrderData> orders = orderDataService.findByIsDeleted(isDeleted);
-    //     return ResponseEntity.ok(orders);
+    // @Parameter(description = "Is Deleted") @PathVariable boolean isDeleted) {
+    // List<OrderData> orders = orderDataService.findByIsDeleted(isDeleted);
+    // return ResponseEntity.ok(orders);
     // }
 }
