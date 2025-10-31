@@ -25,6 +25,14 @@ public class OrderAssignmentHistory {
     @Column(name = "assigned_by_role", length = 50)
     private String assignedByRole;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_by")
+    private User assignedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "completed_by")
+    private User completedBy;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "assignment_type", nullable = false)
     private AssignmentType assignmentType;
@@ -47,13 +55,15 @@ public class OrderAssignmentHistory {
     }
 
     public OrderAssignmentHistory(String id, OrderData order, String assignedToRole, String assignedByRole,
-            AssignmentType assignmentType, String notes) {
+            AssignmentType assignmentType, String notes, User assignedBy, User completedBy) {
         this.id = id;
         this.order = order;
         this.assignedToRole = assignedToRole;
         this.assignedByRole = assignedByRole;
         this.assignmentType = assignmentType;
         this.notes = notes;
+        this.assignedBy = assignedBy;
+        this.completedBy = completedBy;
     }
 
     // Getters and Setters
@@ -129,6 +139,22 @@ public class OrderAssignmentHistory {
         this.assignedAt = assignedAt;
     }
 
+    public User getAssignedBy() {
+        return assignedBy;
+    }
+
+    public void setAssignedBy(User assignedBy) {
+        this.assignedBy = assignedBy;
+    }
+
+    public User getCompletedBy() {
+        return completedBy;
+    }
+
+    public void setCompletedBy(User completedBy) {
+        this.completedBy = completedBy;
+    }
+
     @Override
     public String toString() {
         return "OrderAssignmentHistory{" +
@@ -136,6 +162,8 @@ public class OrderAssignmentHistory {
                 ", order=" + (order != null ? order.getOrderNumber() : null) +
                 ", assignedToRole='" + assignedToRole + '\'' +
                 ", assignedByRole='" + assignedByRole + '\'' +
+                ", assignedBy=" + (assignedBy != null ? assignedBy.getUsername() : null) +
+                ", completedBy=" + (completedBy != null ? completedBy.getUsername() : null) +
                 ", assignmentType=" + assignmentType +
                 ", notes='" + notes + '\'' +
                 ", sla=" + sla +
