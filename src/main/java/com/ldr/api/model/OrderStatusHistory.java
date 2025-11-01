@@ -1,11 +1,18 @@
 package com.ldr.api.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "order_status_history")
@@ -20,17 +27,14 @@ public class OrderStatusHistory {
     @JoinColumn(name = "order_id", nullable = false)
     private OrderData order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_status_id")
-    private OrderStatus fromStatus;
+    @Column(name = "from_status_code", length = 20)
+    private String fromStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_status_id", nullable = false)
-    private OrderStatus toStatus;
+    @Column(name = "to_status_code", nullable = false, length = 20)
+    private String toStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "changed_by", nullable = false)
-    private User changedBy;
+    @Column(name = "changed_by", nullable = false, length = 36)
+    private String changedBy;
 
     @Column(name = "change_reason", columnDefinition = "TEXT")
     private String changeReason;
@@ -42,7 +46,7 @@ public class OrderStatusHistory {
     // Constructors
     public OrderStatusHistory() {}
 
-    public OrderStatusHistory(String id, OrderData order, OrderStatus fromStatus, OrderStatus toStatus, User changedBy, String changeReason) {
+    public OrderStatusHistory(String id, OrderData order, String fromStatus, String toStatus, String changedBy, String changeReason) {
         this.id = id;
         this.order = order;
         this.fromStatus = fromStatus;
@@ -68,27 +72,27 @@ public class OrderStatusHistory {
         this.order = order;
     }
 
-    public OrderStatus getFromStatus() {
+    public String getFromStatus() {
         return fromStatus;
     }
 
-    public void setFromStatus(OrderStatus fromStatus) {
+    public void setFromStatus(String fromStatus) {
         this.fromStatus = fromStatus;
     }
 
-    public OrderStatus getToStatus() {
+    public String getToStatus() {
         return toStatus;
     }
 
-    public void setToStatus(OrderStatus toStatus) {
+    public void setToStatus(String toStatus) {
         this.toStatus = toStatus;
     }
 
-    public User getChangedBy() {
+    public String getChangedBy() {
         return changedBy;
     }
 
-    public void setChangedBy(User changedBy) {
+    public void setChangedBy(String changedBy) {
         this.changedBy = changedBy;
     }
 
@@ -113,9 +117,9 @@ public class OrderStatusHistory {
         return "OrderStatusHistory{" +
                 "id='" + id + '\'' +
                 ", order=" + (order != null ? order.getOrderNumber() : null) +
-                ", fromStatus=" + (fromStatus != null ? fromStatus.getName() : null) +
-                ", toStatus=" + (toStatus != null ? toStatus.getName() : null) +
-                ", changedBy=" + (changedBy != null ? changedBy.getUsername() : null) +
+                ", fromStatus='" + fromStatus + '\'' +
+                ", toStatus='" + toStatus + '\'' +
+                ", changedBy='" + changedBy + '\'' +
                 ", changeReason='" + changeReason + '\'' +
                 ", changedAt=" + changedAt +
                 '}';

@@ -255,7 +255,7 @@ public class OrderDataService {
         OrderApproval orderApproval = new OrderApproval();
         orderApproval.setId(java.util.UUID.randomUUID().toString());
         orderApproval.setOrder(updatedOrder);
-        orderApproval.setApprover(approver);
+        orderApproval.setApprover(approver.getId());
         orderApproval.setApproverRole(approverRole); // Use role from JWT
         orderApproval.setStatus("APPROVED");
         orderApproval.setApprovedAt(java.time.LocalDateTime.now());
@@ -266,9 +266,9 @@ public class OrderDataService {
         OrderStatusHistory statusHistory = new OrderStatusHistory();
         statusHistory.setId(java.util.UUID.randomUUID().toString());
         statusHistory.setOrder(updatedOrder);
-        statusHistory.setFromStatus(fromStatus);
-        statusHistory.setToStatus(toStatus);
-        statusHistory.setChangedBy(approver);
+        statusHistory.setFromStatus(fromStatus.getCode());
+        statusHistory.setToStatus(toStatus.getCode());
+        statusHistory.setChangedBy(approver.getId());
         statusHistory.setChangeReason("Order approved by " + approverRole + " - " + approverUsername);
 
         orderStatusHistoryRepository.save(statusHistory);
@@ -330,6 +330,9 @@ public class OrderDataService {
 
         // Get workflow ID from order
         String workflowId = order.getWorkflow().getId();
+        if (workflowId == null || workflowId.isEmpty()) {
+            throw new ValidationException("Order does not have a valid workflow assigned");
+        }
 
         // Find workflow detail based on current role
         WorkflowDetail workflowDetail = workflowDetailRepository.findByWorkflowId(workflowId).stream()

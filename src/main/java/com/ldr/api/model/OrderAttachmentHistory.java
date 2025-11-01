@@ -52,9 +52,8 @@ public class OrderAttachmentHistory {
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by")
-    private User uploadedBy;
+    @Column(name = "uploaded_by", length = 36)
+    private String uploadedBy;
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
@@ -63,9 +62,8 @@ public class OrderAttachmentHistory {
     @Column(name = "change_type", nullable = false)
     private ChangeType changeType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "changed_by", nullable = false)
-    private User changedBy;
+    @Column(name = "changed_by", nullable = false, length = 36)
+    private String changedBy;
 
     @Column(name = "changed_at", nullable = false)
     private LocalDateTime changedAt;
@@ -81,13 +79,11 @@ public class OrderAttachmentHistory {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @Column(name = "created_by", length = 36)
+    private String createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
+    @Column(name = "updated_by", length = 36)
+    private String updatedBy;
 
     @Version
     @Column(name = "version", nullable = false)
@@ -193,11 +189,11 @@ public class OrderAttachmentHistory {
         isActive = active;
     }
 
-    public User getUploadedBy() {
+    public String getUploadedBy() {
         return uploadedBy;
     }
 
-    public void setUploadedBy(User uploadedBy) {
+    public void setUploadedBy(String uploadedBy) {
         this.uploadedBy = uploadedBy;
     }
 
@@ -217,11 +213,11 @@ public class OrderAttachmentHistory {
         this.changeType = changeType;
     }
 
-    public User getChangedBy() {
+    public String getChangedBy() {
         return changedBy;
     }
 
-    public void setChangedBy(User changedBy) {
+    public void setChangedBy(String changedBy) {
         this.changedBy = changedBy;
     }
 
@@ -257,19 +253,19 @@ public class OrderAttachmentHistory {
         this.updatedAt = updatedAt;
     }
 
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    public User getUpdatedBy() {
+    public String getUpdatedBy() {
         return updatedBy;
     }
 
-    public void setUpdatedBy(User updatedBy) {
+    public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
 
@@ -296,16 +292,16 @@ public class OrderAttachmentHistory {
                 ", keterangan='" + keterangan + '\'' +
                 ", versionNumber=" + versionNumber +
                 ", isActive=" + isActive +
-                ", uploadedBy=" + (uploadedBy != null ? uploadedBy.getUsername() : null) +
+                ", uploadedBy='" + uploadedBy + '\'' +
                 ", uploadedAt=" + uploadedAt +
                 ", changeType='" + changeType + '\'' +
-                ", changedBy=" + (changedBy != null ? changedBy.getUsername() : null) +
+                ", changedBy='" + changedBy + '\'' +
                 ", changedAt=" + changedAt +
                 ", changeReason='" + changeReason + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", createdBy=" + (createdBy != null ? createdBy.getUsername() : null) +
-                ", updatedBy=" + (updatedBy != null ? updatedBy.getUsername() : null) +
+                ", createdBy='" + createdBy + '\'' +
+                ", updatedBy='" + updatedBy + '\'' +
                 ", version=" + version +
                 '}';
     }

@@ -37,7 +37,7 @@ public interface OrderAttachmentHistoryRepository extends JpaRepository<OrderAtt
      * @param changedBy the user ID who changed the attachment
      * @return List<OrderAttachmentHistory>
      */
-    List<OrderAttachmentHistory> findByChangedById(String changedBy);
+    List<OrderAttachmentHistory> findByChangedBy(String changedBy);
 
     /**
      * Find all OrderAttachmentHistory by change type

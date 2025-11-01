@@ -144,7 +144,7 @@ public class OrderAttachmentService {
                 attachment.setFileSize(file.getSize());
                 attachment.setFileType(getFileType(fileExtension));
                 attachment.setMimeType(file.getContentType());
-                attachment.setUploadedBy(uploader);
+                attachment.setUploadedBy(uploader.getId());
                 attachment.setActive(true);
 
                 savedAttachment = orderAttachmentRepository.save(attachment);
@@ -166,10 +166,10 @@ public class OrderAttachmentService {
             history.setKeterangan(keterangan);
             history.setVersionNumber(getNextVersionNumber(savedAttachment.getId()));
             history.setActive(true);
-            history.setUploadedBy(uploader);
+            history.setUploadedBy(uploader.getId());
             history.setUploadedAt(LocalDateTime.now());
             history.setChangeType(changeType);
-            history.setChangedBy(uploader);
+            history.setChangedBy(uploader.getId());
             history.setChangedAt(LocalDateTime.now());
             history.setChangeReason(changeReason);
 

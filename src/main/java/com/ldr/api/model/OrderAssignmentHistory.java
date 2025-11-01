@@ -25,13 +25,11 @@ public class OrderAssignmentHistory {
     @Column(name = "assigned_by_role", length = 50)
     private String assignedByRole;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_by")
-    private User assignedBy;
+    @Column(name = "assigned_by", length = 36)
+    private String assignedBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "completed_by")
-    private User completedBy;
+    @Column(name = "completed_by", length = 36)
+    private String completedBy;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "assignment_type", nullable = false)
@@ -42,6 +40,9 @@ public class OrderAssignmentHistory {
 
     @Column(name = "sla")
     private Integer sla;
+
+    @Column(name = "target_at")
+    private LocalDateTime targetAt;
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
@@ -55,7 +56,7 @@ public class OrderAssignmentHistory {
     }
 
     public OrderAssignmentHistory(String id, OrderData order, String assignedToRole, String assignedByRole,
-            AssignmentType assignmentType, String notes, User assignedBy, User completedBy) {
+            AssignmentType assignmentType, String notes, String assignedBy, String completedBy, LocalDateTime targetAt) {
         this.id = id;
         this.order = order;
         this.assignedToRole = assignedToRole;
@@ -64,6 +65,7 @@ public class OrderAssignmentHistory {
         this.notes = notes;
         this.assignedBy = assignedBy;
         this.completedBy = completedBy;
+        this.targetAt = targetAt;
     }
 
     // Getters and Setters
@@ -123,6 +125,14 @@ public class OrderAssignmentHistory {
         this.sla = sla;
     }
 
+    public LocalDateTime getTargetAt() {
+        return targetAt;
+    }
+
+    public void setTargetAt(LocalDateTime targetAt) {
+        this.targetAt = targetAt;
+    }
+
     public LocalDateTime getCompletedAt() {
         return completedAt;
     }
@@ -139,19 +149,19 @@ public class OrderAssignmentHistory {
         this.assignedAt = assignedAt;
     }
 
-    public User getAssignedBy() {
+    public String getAssignedBy() {
         return assignedBy;
     }
 
-    public void setAssignedBy(User assignedBy) {
+    public void setAssignedBy(String assignedBy) {
         this.assignedBy = assignedBy;
     }
 
-    public User getCompletedBy() {
+    public String getCompletedBy() {
         return completedBy;
     }
 
-    public void setCompletedBy(User completedBy) {
+    public void setCompletedBy(String completedBy) {
         this.completedBy = completedBy;
     }
 
@@ -162,11 +172,12 @@ public class OrderAssignmentHistory {
                 ", order=" + (order != null ? order.getOrderNumber() : null) +
                 ", assignedToRole='" + assignedToRole + '\'' +
                 ", assignedByRole='" + assignedByRole + '\'' +
-                ", assignedBy=" + (assignedBy != null ? assignedBy.getUsername() : null) +
-                ", completedBy=" + (completedBy != null ? completedBy.getUsername() : null) +
+                ", assignedBy='" + assignedBy + '\'' +
+                ", completedBy='" + completedBy + '\'' +
                 ", assignmentType=" + assignmentType +
                 ", notes='" + notes + '\'' +
                 ", sla=" + sla +
+                ", targetAt=" + targetAt +
                 ", completedAt=" + completedAt +
                 ", assignedAt=" + assignedAt +
                 '}';

@@ -37,13 +37,6 @@ public class Document {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
 
     @Version
     @Column(name = "version", nullable = false)
@@ -117,21 +110,6 @@ public class Document {
         this.updatedAt = updatedAt;
     }
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public User getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(User updatedBy) {
-        this.updatedBy = updatedBy;
-    }
 
     public Long getVersion() {
         return version;
@@ -151,8 +129,8 @@ public class Document {
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", createdBy=" + (createdBy != null ? createdBy.getId() : null) +
-                ", updatedBy=" + (updatedBy != null ? updatedBy.getId() : null) +
+                ", createdBy=null" +
+                ", updatedBy=null" +
                 ", version=" + version +
                 '}';
     }

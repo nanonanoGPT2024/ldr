@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/dropdown")
+@RequestMapping("/api/v1/dropdown")
 @Tag(name = "Dropdown", description = "Reference table dropdown endpoints")
 @SecurityRequirement(name = "bearerAuth")
 public class DropdownController {

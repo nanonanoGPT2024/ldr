@@ -32,7 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Authentication management APIs")
 @SecurityRequirement(name = "bearerAuth")
 public class AuthController {

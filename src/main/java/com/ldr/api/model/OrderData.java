@@ -44,9 +44,8 @@ public class OrderData {
     private String clientPhone;
 
     // Requestor Information
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requestor_id", nullable = false)
-    private User requestor;
+    @Column(name = "requestor_id", nullable = false, length = 36)
+    private String requestor;
 
     @Column(name = "requestor_name", nullable = false, length = 255)
     private String requestorName;
@@ -116,9 +115,8 @@ public class OrderData {
     @JoinColumn(name = "priority_id", nullable = false)
     private Priority priority;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to")
-    private User assignedTo;
+    @Column(name = "assigned_to", length = 36)
+    private String assignedTo;
 
     @Column(name = "current_role", length = 50)
     private String currentRole;
@@ -155,13 +153,11 @@ public class OrderData {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @Column(name = "created_by", length = 36)
+    private String createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
+    @Column(name = "updated_by", length = 36)
+    private String updatedBy;
 
     // Constructors
     public OrderData() {}
@@ -246,11 +242,11 @@ public class OrderData {
         this.clientPhone = clientPhone;
     }
 
-    public User getRequestor() {
+    public String getRequestor() {
         return requestor;
     }
 
-    public void setRequestor(User requestor) {
+    public void setRequestor(String requestor) {
         this.requestor = requestor;
     }
 
@@ -406,11 +402,11 @@ public class OrderData {
         this.priority = priority;
     }
 
-    public User getAssignedTo() {
+    public String getAssignedTo() {
         return assignedTo;
     }
 
-    public void setAssignedTo(User assignedTo) {
+    public void setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
     }
 
@@ -494,19 +490,19 @@ public class OrderData {
         this.updatedAt = updatedAt;
     }
 
-    public User getCreatedBy() {
+    public String getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    public User getUpdatedBy() {
+    public String getUpdatedBy() {
         return updatedBy;
     }
 
-    public void setUpdatedBy(User updatedBy) {
+    public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
 
@@ -522,7 +518,7 @@ public class OrderData {
                 ", clientContactPerson='" + clientContactPerson + '\'' +
                 ", clientEmail='" + clientEmail + '\'' +
                 ", clientPhone='" + clientPhone + '\'' +
-                ", requestor=" + (requestor != null ? requestor.getUsername() : null) +
+                ", requestor='" + requestor + '\'' +
                 ", requestorName='" + requestorName + '\'' +
                 ", requestorEmail='" + requestorEmail + '\'' +
                 ", requestorDepartment='" + requestorDepartment + '\'' +
@@ -542,7 +538,7 @@ public class OrderData {
                 ", currentStatusCode='" + currentStatusCode + '\'' +
                 ", workflow=" + (workflow != null ? workflow.getNama() : null) +
                 ", priority=" + (priority != null ? priority.getName() : null) +
-                ", assignedTo=" + (assignedTo != null ? assignedTo.getUsername() : null) +
+                ", assignedTo='" + assignedTo + '\'' +
                 ", currentRole='" + currentRole + '\'' +
                 ", sla=" + sla +
                 ", submissionDate=" + submissionDate +
@@ -553,8 +549,8 @@ public class OrderData {
                 ", deletedAt=" + deletedAt +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", createdBy=" + (createdBy != null ? createdBy.getUsername() : null) +
-                ", updatedBy=" + (updatedBy != null ? updatedBy.getUsername() : null) +
+                ", createdBy='" + createdBy + '\'' +
+                ", updatedBy='" + updatedBy + '\'' +
                 '}';
     }
 }

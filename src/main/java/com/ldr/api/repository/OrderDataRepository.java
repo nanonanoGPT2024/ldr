@@ -40,8 +40,8 @@ public interface OrderDataRepository extends JpaRepository<OrderData, String> {
             LOWER(o.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
             LOWER(o.clientName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND
            (:statusId IS NULL OR o.currentStatusCode = :statusId) AND
-           (:priorityId IS NULL OR o.priority.id = :priorityId) AND
-           (:requestorId IS NULL OR o.requestor.id = :requestorId) AND
+           (:priorityId IS NULL OR o.priority = :priorityId) AND
+           (:requestorId IS NULL OR o.requestor = :requestorId) AND
            (:currentRole IS NULL OR o.currentRole = :currentRole) AND
            (:startDate IS NULL OR o.submissionDate >= :startDate) AND
            (:endDate IS NULL OR o.submissionDate <= :endDate) AND

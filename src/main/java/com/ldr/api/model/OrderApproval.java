@@ -20,9 +20,8 @@ public class OrderApproval {
     @JoinColumn(name = "order_id", nullable = false)
     private OrderData order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approver_id", nullable = false)
-    private User approver;
+    @Column(name = "approver_id", nullable = false, length = 36)
+    private String approver;
 
     @Column(name = "approver_role", nullable = false, length = 50)
     private String approverRole;
@@ -51,7 +50,7 @@ public class OrderApproval {
     // Constructors
     public OrderApproval() {}
 
-    public OrderApproval(String id, OrderData order, User approver, String approverRole) {
+    public OrderApproval(String id, OrderData order, String approver, String approverRole) {
         this.id = id;
         this.order = order;
         this.approver = approver;
@@ -75,11 +74,11 @@ public class OrderApproval {
         this.order = order;
     }
 
-    public User getApprover() {
+    public String getApprover() {
         return approver;
     }
 
-    public void setApprover(User approver) {
+    public void setApprover(String approver) {
         this.approver = approver;
     }
 
@@ -144,7 +143,7 @@ public class OrderApproval {
         return "OrderApproval{" +
                 "id='" + id + '\'' +
                 ", order=" + (order != null ? order.getOrderNumber() : null) +
-                ", approver=" + (approver != null ? approver.getUsername() : null) +
+                ", approver='" + approver + '\'' +
                 ", approverRole='" + approverRole + '\'' +
                 ", status='" + status + '\'' +
                 ", comments='" + comments + '\'' +

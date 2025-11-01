@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/upload")
+@RequestMapping("/api/v1/upload")
 @Tag(name = "Upload", description = "File upload and history management APIs")
 @SecurityRequirement(name = "bearerAuth")
 public class UploadController {
@@ -55,11 +55,11 @@ public class UploadController {
             @Parameter(description = "Order ID") @RequestParam("orderId") String orderId,
             @Parameter(description = "Document ID (optional)") @RequestParam(value = "documentId", required = false) String documentId,
             @Parameter(description = "Description/notes for the attachment") @RequestParam(value = "keterangan", required = false) String keterangan,
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token) {
+            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String authorize) {
 
         try {
             // Extract username from JWT token
-            String uploaderUsername = jwtUtil.extractUsername(token.replace("Bearer ", ""));
+            String uploaderUsername = jwtUtil.extractUsername(authorize.replace("Bearer ", ""));
 
             FileUploadResponse response = orderAttachmentService.uploadFile(file, orderId, documentId, keterangan,
                     uploaderUsername);

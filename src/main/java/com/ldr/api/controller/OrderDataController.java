@@ -44,7 +44,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/orders")
 @Tag(name = "OrderData", description = "OrderData management APIs")
 public class OrderDataController {
 
@@ -195,7 +195,7 @@ public class OrderDataController {
             OrderData orderData = entityMapper.mapToEntity(request, OrderData.class);
 
             // Set default workflow to 'LDR' if not provided
-            if (orderData.getWorkflow() == null || orderData.getWorkflow().getId() == null) {
+            if (orderData.getWorkflow() == null || orderData.getWorkflow().getId() == null || orderData.getWorkflow().getId().isEmpty()) {
                 Workflow defaultWorkflow = orderDataService.findWorkflowByName("LDR");
                 if (defaultWorkflow != null) {
                     orderData.setWorkflow(defaultWorkflow);

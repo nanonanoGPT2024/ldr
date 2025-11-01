@@ -45,9 +45,8 @@ public class OrderAttachment {
     @Column(name = "mime_type", length = 100)
     private String mimeType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by", nullable = false)
-    private User uploadedBy;
+    @Column(name = "uploaded_by", nullable = false, length = 36)
+    private String uploadedBy;
 
     @Version
     @Column(name = "version", nullable = false)
@@ -73,7 +72,7 @@ public class OrderAttachment {
     // Constructors
     public OrderAttachment() {}
 
-    public OrderAttachment(String id, OrderData order, String fileName, String originalFileName, String filePath, User uploadedBy) {
+    public OrderAttachment(String id, OrderData order, String fileName, String originalFileName, String filePath, String uploadedBy) {
         this.id = id;
         this.order = order;
         this.fileName = fileName;
@@ -163,11 +162,11 @@ public class OrderAttachment {
         this.mimeType = mimeType;
     }
 
-    public User getUploadedBy() {
+    public String getUploadedBy() {
         return uploadedBy;
     }
 
-    public void setUploadedBy(User uploadedBy) {
+    public void setUploadedBy(String uploadedBy) {
         this.uploadedBy = uploadedBy;
     }
 
@@ -232,7 +231,7 @@ public class OrderAttachment {
                 ", fileSize=" + fileSize +
                 ", fileType='" + fileType + '\'' +
                 ", mimeType='" + mimeType + '\'' +
-                ", uploadedBy=" + (uploadedBy != null ? uploadedBy.getUsername() : null) +
+                ", uploadedBy='" + uploadedBy + '\'' +
                 ", version=" + version +
                 ", isActive=" + isActive +
                 ", isDeleted=" + isDeleted +

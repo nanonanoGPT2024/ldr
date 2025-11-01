@@ -22,7 +22,7 @@ public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusH
      * @param changedBy the user ID who changed the status
      * @return List<OrderStatusHistory>
      */
-    List<OrderStatusHistory> findByChangedById(String changedBy);
+    List<OrderStatusHistory> findByChangedBy(String changedBy);
 
     /**
      * Find all OrderStatusHistory by changed at between dates

@@ -29,7 +29,7 @@ public interface OrderAttachmentRepository extends JpaRepository<OrderAttachment
      * @param uploadedBy the user ID who uploaded
      * @return List<OrderAttachment>
      */
-    List<OrderAttachment> findByUploadedById(String uploadedBy);
+    List<OrderAttachment> findByUploadedBy(String uploadedBy);
 
     /**
      * Find all OrderAttachment by created at between start and end date

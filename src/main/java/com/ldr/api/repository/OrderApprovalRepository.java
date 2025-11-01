@@ -21,7 +21,7 @@ public interface OrderApprovalRepository extends JpaRepository<OrderApproval, St
      * @param approverId the approver ID
      * @return List<OrderApproval>
      */
-    List<OrderApproval> findByApproverId(String approverId);
+    List<OrderApproval> findByApprover(String approverId);
 
     /**
      * Find all OrderApproval by status
@@ -44,5 +44,5 @@ public interface OrderApprovalRepository extends JpaRepository<OrderApproval, St
      * @param status the status
      * @return List<OrderApproval>
      */
-    List<OrderApproval> findByApproverIdAndStatus(String approverId, String status);
+    List<OrderApproval> findByApproverAndStatus(String approverId, String status);
 }
