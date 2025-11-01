@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -51,15 +52,17 @@ public class UploadController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<FileUploadResponse> uploadImage(
+            HttpServletRequest request,
             @Parameter(description = "Image file to upload") @RequestParam("file") MultipartFile file,
             @Parameter(description = "Order ID") @RequestParam("orderId") String orderId,
             @Parameter(description = "Document ID (optional)") @RequestParam(value = "documentId", required = false) String documentId,
-            @Parameter(description = "Description/notes for the attachment") @RequestParam(value = "keterangan", required = false) String keterangan,
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String authorize) {
+            @Parameter(description = "Description/notes for the attachment") @RequestParam(value = "keterangan", required = false) String keterangan) {
 
         try {
+            String token = request.getHeader("Authorization");
+
             // Extract username from JWT token
-            String uploaderUsername = jwtUtil.extractUsername(authorize.replace("Bearer ", ""));
+            String uploaderUsername = jwtUtil.extractUsername(token.replace("Bearer ", ""));
 
             FileUploadResponse response = orderAttachmentService.uploadFile(file, orderId, documentId, keterangan,
                     uploaderUsername);

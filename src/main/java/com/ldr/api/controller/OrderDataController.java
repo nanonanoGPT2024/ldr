@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.ldr.api.dto.ApiPageResponse;
 import com.ldr.api.dto.CreateOrderDataRequest;
@@ -66,7 +66,7 @@ public class OrderDataController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ApiPageResponse<OrderData>> getAllOrdersRequest(
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token,
+            HttpServletRequest request,
             @Parameter(description = "Search term for title, description, or client name") @RequestParam(required = false) String search,
             @Parameter(description = "Filter by priority ID") @RequestParam(required = false) String priorityId,
             @Parameter(description = "Filter by requestor ID") @RequestParam(required = false) String requestorId,
@@ -76,6 +76,8 @@ public class OrderDataController {
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
             @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "desc") String sortDir) {
+
+        String token = request.getHeader("Authorization");
 
         // Extract role from JWT token
         String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
@@ -109,7 +111,7 @@ public class OrderDataController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<ApiPageResponse<OrderData>> getAllOrdersTracking(
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token,
+            HttpServletRequest request,
             @Parameter(description = "Search term for title, description, or client name") @RequestParam(required = false) String search,
             @Parameter(description = "Filter by priority ID") @RequestParam(required = false) String priorityId,
             @Parameter(description = "Filter by submission date from (YYYY-MM-DD)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -118,6 +120,8 @@ public class OrderDataController {
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "deadlineDate") String sortBy,
             @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "asc") String sortDir) {
+
+        String token = request.getHeader("Authorization");
 
         // Extract role from JWT token
         String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
@@ -234,21 +238,23 @@ public class OrderDataController {
     @PatchMapping("/approved/{orderId}")
     @Operation(summary = "Approve OrderData", description = "Approve an order data and update status to IN_PROGRESS with BD role")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OrderData approved successfully"),
+            @ApiResponse(responseCode = "200", description = "OrderData success"),
             @ApiResponse(responseCode = "404", description = "OrderData not found"),
             @ApiResponse(responseCode = "400", description = "Invalid request"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<OrderData> approveOrder(
+    public ResponseEntity<String> approveOrder(
             @Parameter(description = "OrderData ID") @PathVariable String orderId,
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token) {
+            HttpServletRequest request) {
         try {
+            String token = request.getHeader("Authorization");
+
             // Extract user and role from JWT token
             String approverUsername = jwtUtil.extractUsername(token.replace("Bearer ", ""));
             String approverRole = jwtUtil.extractRole(token.replace("Bearer ", ""));
 
-            OrderData approvedOrder = orderDataService.approveOrder(orderId, approverUsername, approverRole);
-            return ResponseEntity.ok(approvedOrder);
+            orderDataService.approveOrder(orderId, approverUsername, approverRole);
+            return ResponseEntity.ok("success");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (ValidationException e) {
@@ -301,17 +307,19 @@ public class OrderDataController {
             @ApiResponse(responseCode = "404", description = "Order or workflow detail not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<OrderData> executeWorkflowAction(
+    public ResponseEntity<String> executeWorkflowAction(
             @Parameter(description = "Action stage (next-stage, return-stage, reject-stage)") @PathVariable String actionStage,
             @Parameter(description = "OrderActionRequest object") @Valid @RequestBody OrderActionRequest request,
-            @Parameter(description = "Authorization header") @RequestHeader("Authorization") String token) {
+            HttpServletRequest httpRequest) {
         try {
+            String token = httpRequest.getHeader("Authorization");
+
             // Extract user and role from JWT token
             String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
             String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
 
-            OrderData updatedOrder = orderDataService.executeWorkflowAction(actionStage, request, username, role);
-            return ResponseEntity.ok(updatedOrder);
+            orderDataService.executeWorkflowAction(actionStage, request, username, role);
+            return ResponseEntity.ok("success");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (ValidationException e) {
