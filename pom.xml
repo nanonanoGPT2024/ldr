@@ -81,6 +81,7 @@
     </dependencies>
 
     <build>
+        <finalName>ldr_management</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
